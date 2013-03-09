@@ -1,14 +1,14 @@
 (* NAMES:
  *
- * Partner 1's name: ______
- * Partner 1's code.seas account: _______
+ * Partner 1's name: David Chouinard
+ * Partner 1's code.seas account: dchouinard
  *
  * (Leave blank if you are working alone)
- * Partner 2's name: ______
- * Partner 2's code.seas account: _______
+ * Partner 2's name: Matthew J. Holman
+ * Partner 2's code.seas account: mholman
  *)
 
-open Util ;;    
+open Util ;;
 open CrawlerServices ;;
 open Pagerank ;;
 open Crawl ;;
