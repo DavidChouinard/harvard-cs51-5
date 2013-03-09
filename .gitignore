@@ -8,3 +8,4 @@
 *.cmxs
 *.cmxa
 moogle
+.DS_Store

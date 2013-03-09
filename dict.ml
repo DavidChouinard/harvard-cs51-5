@@ -7,12 +7,12 @@ exception TODO
 
 module type DICT = 
 sig
-  type key   
-  type value 
+  type key
+  type value
   type dict
 
   (* An empty dictionary *)
-  val empty : dict 
+  val empty : dict
 
   (* Reduce the dictionary using the provided function f and base case u. 
    * Our reducing function f must have the type:

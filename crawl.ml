@@ -56,8 +56,8 @@ let print s =
 (*    PART 1: CRAWLER                                                  *)
 (***********************************************************************)
 
-(* TODO: Build an index as follows:
- * 
+(* Build an index as follows:
+ *
  * Remove a link from the frontier (the set of links that have yet to
  * be visited), visit this link, add its outgoing links to the
  * frontier, and update the index so that all words on this page are
@@ -66,11 +66,36 @@ let print s =
  * Keep crawling until we've
  * reached the maximum number of links (n) or the frontier is empty. *)
 let rec crawl (n:int) (frontier: LinkSet.set)
-    (visited : LinkSet.set) (d:WordDict.dict) : WordDict.dict = 
-  WordDict.empty
+    (visited : LinkSet.set) (d:WordDict.dict) : WordDict.dict =
+  let rec add_words_to_index (d: WordDict.dict) (url: link) (words: string list)
+      : WordDict.dict =
+    match words with
+    | [] -> d
+    (*TODO: Union instead*)
+    | hd::tl -> add_words_to_index (WordDict.insert d hd (LinkSet.insert url
+        LinkSet.empty)) url tl
+  in
+  if n <= 1 then WordDict.empty else
+  match LinkSet.choose frontier with
+  | None -> WordDict.empty (* Set is empty, our work here is done *)
+  | Some (url, frontier) ->
+      match CrawlerServices.get_page url with
+      | None -> WordDict.empty (* Set is empty, our work here is done *)
+      | Some {url = _; links = outgoing; words = words} ->
+          (*let new_frontier = LinkSet.union outgoing frontier in*)
+          let new_visited = LinkSet.insert url visited in
+          add_words_to_index d url words
+
+      (*let old_set =*)
+      (*match WordDict.lookup d "test" with*)
+      (*| None -> LinkSet.empty*)
+      (*| Some s -> s*)
+      (*in*)
+      (*WordDict.insert d "test" (LinkSet.insert url old_set)*)
+      (*num_pages_to_search (n-1)*)
 ;;
 
-let crawler () = 
+let crawler () =
   crawl num_pages_to_search (LinkSet.singleton initial_link) LinkSet.empty
     WordDict.empty
 ;;
