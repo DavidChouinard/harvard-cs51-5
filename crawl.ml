@@ -71,28 +71,27 @@ let rec crawl (n:int) (frontier: LinkSet.set)
       : WordDict.dict =
     match words with
     | [] -> d
-    (*TODO: Union instead*)
-    | hd::tl -> add_words_to_index (WordDict.insert d hd (LinkSet.insert url
-        LinkSet.empty)) url tl
+    | hd::tl ->
+      let old_set =
+      match WordDict.lookup d hd with
+      | None -> LinkSet.empty
+      | Some s -> s
+      in
+      add_words_to_index (WordDict.insert d hd (LinkSet.insert url
+        old_set)) url tl
   in
-  if n <= 1 then WordDict.empty else
+  if n <= 1 then d else
   match LinkSet.choose frontier with
-  | None -> WordDict.empty (* Set is empty, our work here is done *)
+  | None -> d (* Set is empty, our work here is done *)
   | Some (url, frontier) ->
       match CrawlerServices.get_page url with
-      | None -> WordDict.empty (* Set is empty, our work here is done *)
+      | None -> d (* Set is empty, our work here is done *)
       | Some {url = _; links = outgoing; words = words} ->
-          (*let new_frontier = LinkSet.union outgoing frontier in*)
+          let new_frontier = LinkSet.union frontier (List.fold_right
+            (LinkSet.insert) outgoing LinkSet.empty) in
           let new_visited = LinkSet.insert url visited in
-          add_words_to_index d url words
+          crawl (n-1) new_frontier new_visited (add_words_to_index d url words)
 
-      (*let old_set =*)
-      (*match WordDict.lookup d "test" with*)
-      (*| None -> LinkSet.empty*)
-      (*| Some s -> s*)
-      (*in*)
-      (*WordDict.insert d "test" (LinkSet.insert url old_set)*)
-      (*num_pages_to_search (n-1)*)
 ;;
 
 let crawler () =
