@@ -85,7 +85,9 @@ let rec crawl (n:int) (frontier: LinkSet.set)
   | None -> d (* Set is empty, our work here is done *)
   | Some (url, frontier) ->
       match CrawlerServices.get_page url with
-      | None -> d (* Set is empty, our work here is done *)
+      | None -> (* page doesn't exist *)
+          let visited = LinkSet.remove url visited in
+          crawl n frontier visited d
       | Some {url = _; links = outgoing; words = words} ->
           if LinkSet.member visited url then
             (* We've already crawled that url *)
