@@ -265,13 +265,13 @@ struct
   type elt = D.key
   type set = D.dict
   let empty = D.empty
-  let insert = D.insert
+  let insert k d = (D.insert d k k)
   let member = D.member
-  let remove = D.remove
+  let remove k d = (D.remove d k)
   let choose = D.choose
   let fold = D.fold
 
-  let singleton x = insert x
+  let singleton x = (insert x empty)
 
   (* implement the rest of the functions in the signature! *)
 
