@@ -270,7 +270,7 @@ struct
   let remove k d = (D.remove d k)
   let choose k d = 
     match D.choose d k k with
-    | Some (k', v', 'd) -> Some (k', d')
+    | Some (k', v', d') -> Some (k', d')
     | None -> None
 
   let fold = D.fold
