@@ -2,6 +2,24 @@
 
 exception TODO
 
+(* 
+Note that the DICT signature includes
+empty 
+insert 
+member 
+remove
+choose
+string_of_key
+run_tests
+fold
+
+We need 
+is_empty (choose returns None if dict is empty)
+singleton (from insert)
+union (can simply insert the members of one set into the other)
+intersect (lookup all members of one set in the other.  Remove any members that don't return a match in the other set)
+*)
+
 (* An interface for set modules *)
 module type SET = 
 sig
@@ -221,23 +239,49 @@ struct
 
 end
 
-
 (******************************************************************)
 (* DictSet: a functor that creates a SET by calling our           *)
 (* Dict.Make functor                                              *)
 (******************************************************************)
-(*
+
 module DictSet(C : COMPARABLE) : (SET with type elt = C.t) = 
 struct
   module D = Dict.Make(struct
-      ??? fill this in!
+  open Order
+  type key = string
+  type value = string
+  let compare x y = string_compare x y
+  let string_of_key k = k
+  let string_of_value v = v
+  let gen_key () = ""
+  let gen_key_gt x () = gen_key ()
+  let gen_key_lt x () = gen_key ()
+  let gen_key_between x y () = None 
+  let gen_key_random () = gen_key ()
+  let gen_value () = ""
+  let gen_pair () = (gen_key(),gen_value())
   end)
-
+    
   type elt = D.key
   type set = D.dict
-  let empty = ???
+  let empty = D.empty
+  let insert = D.insert
+  let member = D.member
+  let remove = D.remove
+  let choose = D.choose
+  let fold = D.fold
+
+  let singleton x = insert x
 
   (* implement the rest of the functions in the signature! *)
+
+  let is_empty d = 
+    match choose d with
+    | Some (k, v, d) -> true
+    | None -> false
+
+  let union = raise TODO
+  let intersect = raise TODO
 
   let string_of_elt = D.string_of_key
   let string_of_set s = D.string_of_dict s
@@ -253,7 +297,7 @@ struct
   let run_tests () = 
     ()
 end
-*)
+
 
 
 
