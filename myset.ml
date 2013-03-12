@@ -254,8 +254,8 @@ struct
   let string_of_key = C.string_of_t
   let string_of_value = C.string_of_t
   let gen_key = C.gen 
-  let gen_key_gt = C.gen 
-  let gen_key_lt = C.gen 
+  let gen_key_gt x = C.gen 
+  let gen_key_lt x = C.gen 
   let gen_key_between x y () = None 
   let gen_key_random () = C.gen ()
   let gen_value () = C.gen ()
