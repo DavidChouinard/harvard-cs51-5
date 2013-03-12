@@ -273,7 +273,7 @@ struct
     | Some (k, v, d') -> Some (k, d')
     | None -> None
 
-  let fold = D.fold
+  let fold f e = D.fold (fun a x -> f x x a) e
 
   let singleton x = (insert x empty)
 
@@ -281,7 +281,7 @@ struct
 
   let is_empty d = 
     match choose d with
-    | Some (k, v, d) -> true
+    | Some (k, d) -> true
     | None -> false
 
   let union = raise TODO
