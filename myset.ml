@@ -248,17 +248,17 @@ module DictSet(C : COMPARABLE) : (SET with type elt = C.t) =
 struct
   module D = Dict.Make(struct
   open Order
-  type key = string
-  type value = string
-  let compare x y = string_compare x y
-  let string_of_key k = k
-  let string_of_value v = v
-  let gen_key () = ""
-  let gen_key_gt x () = gen_key ()
-  let gen_key_lt x () = gen_key ()
+  type key = C.t
+  type value = C.t
+  let compare x y = C.compare x y
+  let string_of_key = C.string_of_t
+  let string_of_value = C.string_of_t
+  let gen_key = C.gen 
+  let gen_key_gt = C.gen 
+  let gen_key_lt = C.gen 
   let gen_key_between x y () = None 
-  let gen_key_random () = gen_key ()
-  let gen_value () = ""
+  let gen_key_random () = C.gen ()
+  let gen_value () = C.gen ()
   let gen_pair () = (gen_key(),gen_value())
   end)
     
