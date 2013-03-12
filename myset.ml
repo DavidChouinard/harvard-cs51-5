@@ -274,7 +274,9 @@ struct
   (* intersect: lookup all members of one set in the other.       * 
    * Remove any members that don't return a match in the other    *  
    * set                                                          *)
-  let intersect = raise TODO
+  let intersect =
+    fold 
+      (fun e s -> if member s e then s else remove e s)
 
   let string_of_elt = D.string_of_key
   let string_of_set s = D.string_of_dict s
