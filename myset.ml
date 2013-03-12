@@ -273,7 +273,7 @@ struct
     | Some (k, v, d') -> Some (k, d')
     | None -> None
 
-  let fold f e = D.fold (fun a x -> f x x a) e
+  let fold f e = D.fold (fun k v a -> f k a) e
 
   let singleton x = (insert x empty)
 
