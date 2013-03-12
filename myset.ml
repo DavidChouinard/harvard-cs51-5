@@ -2,23 +2,6 @@
 
 exception TODO
 
-(* 
-Note that the DICT signature includes
-empty 
-insert 
-member 
-remove
-choose
-string_of_key
-run_tests
-fold
-
-We need 
-is_empty (choose returns None if dict is empty)
-singleton (from insert)
-union (can simply insert the members of one set into the other)
-intersect (lookup all members of one set in the other.  Remove any members that don't return a match in the other set)
-*)
 
 (* An interface for set modules *)
 module type SET = 
@@ -273,7 +256,7 @@ struct
     | Some (k, v, d') -> Some (k, d')
     | None -> None
 
-  let fold f e = D.fold (fun k v a -> f k a) e
+  let fold f = D.fold (fun k v a -> f k a)
 
   let singleton x = (insert x empty)
 
@@ -284,7 +267,13 @@ struct
     | Some (k, d) -> true
     | None -> false
 
-  let union = raise TODO
+  (* union: we can simply insert the members of one set into the  *
+   * other                                                        *)
+  let union = fold insert
+
+  (* intersect: lookup all members of one set in the other.       * 
+   * Remove any members that don't return a match in the other    *  
+   * set                                                          *)
   let intersect = raise TODO
 
   let string_of_elt = D.string_of_key
