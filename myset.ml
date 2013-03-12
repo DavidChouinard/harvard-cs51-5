@@ -250,7 +250,7 @@ struct
   open Order
   type key = C.t
   type value = C.t
-  let compare x y = C.compare x y
+  let compare = C.compare
   let string_of_key = C.string_of_t
   let string_of_value = C.string_of_t
   let gen_key = C.gen 
