@@ -274,9 +274,10 @@ struct
   (* intersect: lookup all members of one set in the other.       * 
    * Remove any members that don't return a match in the other    *  
    * set                                                          *)
-  let intersect =
-    fold 
-      (fun e s -> if member s e then s else remove e s)
+  let intersect s1 s2 =
+    (fold 
+      (fun e s -> if member s2 e then s else remove e s)
+      s1 s1)
 
   let string_of_elt = D.string_of_key
   let string_of_set s = D.string_of_dict s
@@ -320,6 +321,12 @@ struct
     ()
 
   let test_intersect () =
+    let elts1 = generate_random_list 100 in
+    let s1    = insert_list empty elts1 in
+    let is1s1 = intersect s1 s1 in
+    List.iter (fun k -> assert(member is1s1 k)) elts1 ;
+    let is1empty = intersect s1 empty in
+    List.iter (fun k -> assert(not (member is1empty k))) elts1 ;
     ()
 
   let test_member () =
@@ -337,7 +344,12 @@ struct
   let test_singleton () =
     ()
 
+  let print s = 
+    let _ = Printf.printf "%s\n" s in
+    flush_all();;
+
   let run_tests () = 
+    (*print "DictSet tests in\n";*)
     test_insert () ;
     test_remove () ;
     test_union () ;
@@ -347,11 +359,13 @@ struct
     test_fold () ;
     test_is_empty () ;
     test_singleton () ;
+    (*print "DictSet tests out\n";*)
     ()
 
 end
 
-
+module IntDictSet = DictSet(IntComparable) ;;
+IntDictSet.run_tests();;
 
 
 (******************************************************************)
