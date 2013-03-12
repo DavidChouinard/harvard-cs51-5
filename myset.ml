@@ -240,8 +240,8 @@ struct
   let gen_key_gt x = C.gen 
   let gen_key_lt x = C.gen 
   let gen_key_between x y () = None 
-  let gen_key_random () = C.gen ()
-  let gen_value () = C.gen ()
+  let gen_key_random () = C.gen_random ()
+  let gen_value () = C.gen_random ()
   let gen_pair () = (gen_key(),gen_value())
   end)
     
