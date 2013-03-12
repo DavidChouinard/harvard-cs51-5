@@ -288,9 +288,67 @@ struct
   (* comprehensive tests to test ALL your functions.              *)
   (****************************************************************)
 
-  (* add your test functions to run_tests *)
-  let run_tests () = 
+  (* adds a list of keys to the set *)
+  let insert_list (d: set) (lst: elt list) : set = 
+    List.fold_left (fun r k -> insert k r) d lst
+
+  let rec generate_random_list (size: int) : elt list =
+    if size <= 0 then []
+    else (C.gen_random()) :: (generate_random_list (size - 1))
+
+  let test_insert () =
+    let elts = generate_random_list 100 in
+    let s1 = insert_list empty elts in
+    List.iter (fun k -> assert(member s1 k)) elts ;
     ()
+
+  let test_remove () =
+    let elts = generate_random_list 100 in
+    let s1 = insert_list empty elts in
+    let s2 = List.fold_right (fun k r -> remove k r) elts s1 in
+    List.iter (fun k -> assert(not (member s2 k))) elts ;
+    ()
+
+  let test_union () =
+    let elts1 = generate_random_list 100 in
+    let s1    = insert_list empty elts1 in
+    let elts2 = generate_random_list 100 in
+    let s2    = insert_list empty elts2 in
+    let us1s2 = union s1 s2 in
+    List.iter (fun k -> assert(member us1s2 k)) elts1 ;
+    List.iter (fun k -> assert(member us1s2 k)) elts2 ;
+    ()
+
+  let test_intersect () =
+    ()
+
+  let test_member () =
+    ()
+
+  let test_choose () =
+    ()
+
+  let test_fold () =
+    ()
+
+  let test_is_empty () =
+    ()
+
+  let test_singleton () =
+    ()
+
+  let run_tests () = 
+    test_insert () ;
+    test_remove () ;
+    test_union () ;
+    test_intersect () ;
+    test_member () ;
+    test_choose () ;
+    test_fold () ;
+    test_is_empty () ;
+    test_singleton () ;
+    ()
+
 end
 
 
