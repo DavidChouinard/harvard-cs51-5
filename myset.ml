@@ -323,11 +323,16 @@ struct
   let test_intersect () =
     let elts1 = generate_random_list 100 in
     let s1    = insert_list empty elts1 in
+    let elts2 = generate_random_list 100 in
+    let s2    = insert_list empty elts2 in
     let is1s1 = intersect s1 s1 in
     List.iter (fun k -> assert(member is1s1 k)) elts1 ;
     let is1empty = intersect s1 empty in
     List.iter (fun k -> assert(not (member is1empty k))) elts1 ;
-    ()
+    let is1s2 = intersect s1 s2 in
+    assert(
+      fold (fun k a -> member s1 k && member s2 k && a) true is1s2)
+
 
   let test_member () =
     ()
