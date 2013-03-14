@@ -174,12 +174,26 @@ struct
     if size <= 0 then []
     else (C.gen_random()) :: (generate_random_list (size - 1))
 
+  (* Generates a list containing an ordered sequence of values *)
+  let generate_sequence_list (size: int) : elt list =
+    let rec gen_seq c size =
+      if size <= 0 then []
+      else c :: (gen_seq (C.gen_gt(c)()) (size - 1)) in
+    gen_seq (C.gen()) size
+
+  (* Insert random values into an initially empty list  *)
+  (* and verify that the inserted values are members of *)
+  (* resulting set.                                     *)
   let test_insert () =
     let elts = generate_random_list 100 in
     let s1 = insert_list empty elts in
     List.iter (fun k -> assert(member s1 k)) elts ;
     ()
 
+  (* Insert random values into an initially empty list  *)
+  (* and then remove them.  Then verify that the        *)
+  (* inserted values are no longer members of the       *)
+  (* resulting set.                                     *)
   let test_remove () =
     let elts = generate_random_list 100 in
     let s1 = insert_list empty elts in
@@ -187,25 +201,93 @@ struct
     List.iter (fun k -> assert(not (member s2 k))) elts ;
     ()
 
+  (* Generate two random sets.  Take the union and test *)
+  (* that the members of the union are members of each  *)
+  (* set.  Check that unions with empty are ok.         *)
   let test_union () =
+    let elts1 = generate_random_list 100 in
+    let s1    = insert_list empty elts1 in
+    let elts2 = generate_random_list 100 in
+    let s2    = insert_list empty elts2 in
+    let us1s2 = union s1 s2 in
+    assert((union empty empty) = empty);
+    assert((union s1 empty) = s1);
+    List.iter (fun k -> assert(member us1s2 k)) elts1 ;
+    List.iter (fun k -> assert(member us1s2 k)) elts2 ;
     ()
 
+  (* Generate two random sets.  Intersect them and test *)
+  (* that the members of the result are members of both *)
+  (* individual sets.  Check that unions with empty are *)
+  (* ok.                                                *)
   let test_intersect () =
-    ()
+    let elts1 = generate_random_list 100 in
+    let s1    = insert_list empty elts1 in
+    let elts2 = generate_random_list 100 in
+    let s2    = insert_list empty elts2 in
+    let is1s1 = intersect s1 s1 in
+    List.iter (fun k -> assert(member is1s1 k)) elts1 ;
+    let is1empty = intersect s1 empty in
+    List.iter (fun k -> assert(not (member is1empty k))) elts1 ;
+    let is1s2 = intersect s1 s2 in
+    assert(
+      fold (fun k a -> member s1 k && member s2 k && a) true is1s2)
 
+  (* Generate two random lists.  Check that they are not    *)
+  (* members of the empty set.  Then insert them into a     *)
+  (* and confirm they are members.  Then remove and confirm *)
+  (* they are not longer members.                           *)
   let test_member () =
+    let elts = generate_random_list 100 in
+    List.iter (fun k -> assert(not (member empty k))) elts ;
+    let s1 = insert_list empty elts in
+    List.iter (fun k -> assert((member s1 k))) elts ;
+    let s2 = List.fold_right (fun k r -> remove k r) elts s1 in
+    List.iter (fun k -> assert(not (member s2 k))) elts ;
     ()
 
+  (* choose members until the set is empty then report *)
+  (* report how many were chosen.                      *)
+  let rec choose_till_empty (size: int) (s: set): int =
+    match choose s with
+    | None -> size
+    | Some (k, s) -> choose_till_empty (size + 1) s
+
+  (* choose members until the set is empty then report *)
+  (* report how many were chosen.                      *)
   let test_choose () =
+    let elts = generate_sequence_list 100 in
+    let s1 = insert_list empty elts in
+    List.iter (fun k -> assert((choose s1) != None)) elts ;
+    assert((choose_till_empty 0 s1) = 100);
+    assert((choose empty) = None);
     ()
 
   let test_fold () =
-    ()
+    let elts1 = generate_random_list 100 in
+    let s1    = insert_list empty elts1 in
+    let elts2 = generate_random_list 100 in
+    let s2    = insert_list empty elts2 in
+    let us1s2 = intersect s1 s2 in
+    assert(
+      fold (fun k a -> member s1 k && a) true empty);
+    assert(
+      not(fold (fun k a -> member s1 k && a) false empty));
+    assert(
+      fold (fun k a -> member s1 k || member s2 k && a) true us1s2)
 
   let test_is_empty () =
+    let elts1 = generate_random_list 100 in
+    let s1    = insert_list empty elts1 in
+    assert(not(is_empty s1));
+    assert(is_empty empty);
     ()
 
   let test_singleton () =
+    let elts = generate_random_list 1 in
+    let s1 = insert_list empty elts in
+    let s2 = singleton (List.hd elts) in
+    assert(s1=s2);
     ()
 
   let run_tests () = 
@@ -264,8 +346,8 @@ struct
 
   let is_empty d = 
     match choose d with
-    | Some (k, d) -> true
-    | None -> false
+    | Some (k, d) -> false
+    | None -> true
 
   (* union: we can simply insert the members of one set into the  *
    * other                                                        *)
@@ -297,12 +379,26 @@ struct
     if size <= 0 then []
     else (C.gen_random()) :: (generate_random_list (size - 1))
 
+  (* Generates a list containing an ordered sequence of values *)
+  let generate_sequence_list (size: int) : elt list =
+    let rec gen_seq c size =
+      if size <= 0 then []
+      else c :: (gen_seq (C.gen_gt(c)()) (size - 1)) in
+    gen_seq (C.gen()) size
+
+  (* Insert random values into an initially empty list  *)
+  (* and verify that the inserted values are members of *)
+  (* resulting set.                                     *)
   let test_insert () =
     let elts = generate_random_list 100 in
     let s1 = insert_list empty elts in
     List.iter (fun k -> assert(member s1 k)) elts ;
     ()
 
+  (* Insert random values into an initially empty list  *)
+  (* and then remove them.  Then verify that the        *)
+  (* inserted values are no longer members of the       *)
+  (* resulting set.                                     *)
   let test_remove () =
     let elts = generate_random_list 100 in
     let s1 = insert_list empty elts in
@@ -310,16 +406,25 @@ struct
     List.iter (fun k -> assert(not (member s2 k))) elts ;
     ()
 
+  (* Generate two random sets.  Take the union and test *)
+  (* that the members of the union are members of at    *)
+  (* least set.  Check that unions with empty are ok.   *)
   let test_union () =
     let elts1 = generate_random_list 100 in
     let s1    = insert_list empty elts1 in
     let elts2 = generate_random_list 100 in
     let s2    = insert_list empty elts2 in
     let us1s2 = union s1 s2 in
+    assert((union empty empty) = empty);
+    assert((union s1 empty) = s1);
     List.iter (fun k -> assert(member us1s2 k)) elts1 ;
     List.iter (fun k -> assert(member us1s2 k)) elts2 ;
     ()
 
+  (* Generate two random sets.  Intersect them and test *)
+  (* that the members of the result are members of both *)
+  (* individual sets.  Check that unions with empty are *)
+  (* ok.                                                *)
   let test_intersect () =
     let elts1 = generate_random_list 100 in
     let s1    = insert_list empty elts1 in
@@ -333,20 +438,60 @@ struct
     assert(
       fold (fun k a -> member s1 k && member s2 k && a) true is1s2)
 
-
+  (* Generate two random lists.  Check that they are not    *)
+  (* members of the empty set.  Then insert them into a     *)
+  (* and confirm they are members.  Then remove and confirm *)
+  (* they are not longer members.                           *)
   let test_member () =
+    let elts = generate_random_list 100 in
+    List.iter (fun k -> assert(not (member empty k))) elts ;
+    let s1 = insert_list empty elts in
+    List.iter (fun k -> assert((member s1 k))) elts ;
+    let s2 = List.fold_right (fun k r -> remove k r) elts s1 in
+    List.iter (fun k -> assert(not (member s2 k))) elts ;
     ()
 
+  (* choose members until the set is empty then report *)
+  (* report how many were chosen.                      *)
+  let rec choose_till_empty (size: int) (s: set): int =
+    match choose s with
+    | None -> size
+    | Some (k, s) -> choose_till_empty (size + 1) s
+
   let test_choose () =
+    let elts = generate_sequence_list 100 in
+    let s1 = insert_list empty elts in
+    List.iter (fun k -> assert((choose s1) != None)) elts ;
+    assert((choose_till_empty 0 s1) = 100);
+    assert((choose empty) = None);
     ()
 
   let test_fold () =
-    ()
+    let elts1 = generate_random_list 100 in
+    let s1    = insert_list empty elts1 in
+    let elts2 = generate_random_list 100 in
+    let s2    = insert_list empty elts2 in
+    let us1s2 = intersect s1 s2 in
+    assert(
+      fold (fun k a -> member s1 k && a) true empty);
+    assert(
+      not(fold (fun k a -> member s1 k && a) false empty));
+    assert(
+      fold (fun k a -> member s1 k || member s2 k && a) true us1s2)
+
 
   let test_is_empty () =
+    let elts1 = generate_random_list 100 in
+    let s1    = insert_list empty elts1 in
+    assert(not(is_empty s1));
+    assert(is_empty empty);
     ()
 
   let test_singleton () =
+    let elts = generate_random_list 1 in
+    let s1 = insert_list empty elts in
+    let s2 = singleton (List.hd elts) in
+    assert(s1=s2);
     ()
 
   let print s = 
@@ -354,7 +499,7 @@ struct
     flush_all();;
 
   let run_tests () = 
-    (*print "DictSet tests in\n";*)
+    print "DictSet tests in\n";
     test_insert () ;
     test_remove () ;
     test_union () ;
@@ -364,11 +509,12 @@ struct
     test_fold () ;
     test_is_empty () ;
     test_singleton () ;
-    (*print "DictSet tests out\n";*)
+    print "DictSet tests out\n";
     ()
 
 end
 
+(* Create a set of ints using our DictSet functor. *)
 module IntDictSet = DictSet(IntComparable) ;;
 IntDictSet.run_tests();;
 
