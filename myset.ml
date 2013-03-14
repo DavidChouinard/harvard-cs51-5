@@ -253,8 +253,6 @@ struct
     | None -> size
     | Some (k, s) -> choose_till_empty (size + 1) s
 
-  (* choose members until the set is empty then report *)
-  (* report how many were chosen.                      *)
   let test_choose () =
     let elts = generate_sequence_list 100 in
     let s1 = insert_list empty elts in
@@ -499,7 +497,7 @@ struct
     flush_all();;
 
   let run_tests () = 
-    print "DictSet tests in\n";
+    (*print "DictSet tests in\n";*)
     test_insert () ;
     test_remove () ;
     test_union () ;
@@ -509,14 +507,10 @@ struct
     test_fold () ;
     test_is_empty () ;
     test_singleton () ;
-    print "DictSet tests out\n";
+    (*print "DictSet tests out\n";*)
     ()
 
 end
-
-(* Create a set of ints using our DictSet functor. *)
-module IntDictSet = DictSet(IntComparable) ;;
-IntDictSet.run_tests();;
 
 
 (******************************************************************)
@@ -531,10 +525,10 @@ IntListSet.run_tests();;
  * 
  * Uncomment out the lines below when you are ready to test your
  * 2-3 dict set implementation *)
-(*
+
+(* Create a set of ints using our DictSet functor. *)
 module IntDictSet = DictSet(IntComparable) ;;
 IntDictSet.run_tests();;
-*)
 
 
 (******************************************************************)
