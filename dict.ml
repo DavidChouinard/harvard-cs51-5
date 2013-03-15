@@ -353,7 +353,15 @@ struct
   (* TODO:
    * Implement fold. Read the specification in the DICT signature above. *)
   let rec fold (f: key -> value -> 'a -> 'a) (u: 'a) (d: dict) : 'a =
-    raise TODO
+    match d with
+    | Leaf -> u
+    | Two (l, kvp, r) -> 
+      let (k, v) = kvp in
+      (fold f (f k v (fold f u l)) r)
+    | Three (l, kvp1, m, kvp2, r) -> 
+      let (k1, v1) = kvp1 in
+      let (k2, v2) = kvp2 in
+      (fold f (f k2 v2 (fold f (f k1 v1 (fold f u l)) m)) r)
 
   (* TODO:
    * Implement these to-string functions *)
@@ -660,7 +668,7 @@ struct
        1 + (max hl (max hm hr)))
 
   let rec balanced (d: dict) : bool =
-    let (b, h) = balanced_height d in 
+    let (b, _) = balanced_height d in 
     b
 
   let rec height (d: dict) : int =
