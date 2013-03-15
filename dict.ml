@@ -367,7 +367,11 @@ struct
    * Implement these to-string functions *)
   let string_of_key = D.string_of_key
   let string_of_value = D.string_of_value
-  let string_of_dict (d: dict) : string = raise TODO
+  let string_of_dict (d: dict) : string = 
+    let f = (fun k v y -> "key: " ^ D.string_of_key k ^ 
+      "; value: (" ^ D.string_of_value v ^ ")\n" ^ y) in
+    fold f "" d
+
       
   (* Debugging function. This will print out the tree in text format.
    * Use this function to see the actual structure of your 2-3 tree. *
