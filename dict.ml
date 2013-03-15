@@ -135,6 +135,7 @@ struct
 end
 
 
+
 (* An association list implementation of our DICT signature. *)
 module AssocListDict(D:DICT_ARG) : (DICT with type key = D.key
   with type value = D.value) = 
@@ -273,7 +274,7 @@ end
 (* BTDict: a functor that implements our DICT signature           *)
 (* using a balanced tree (2-3 trees)                              *)
 (******************************************************************)
-(*
+
 module BTDict(D:DICT_ARG) : (DICT with type key = D.key
 with type value = D.value) =
 struct
@@ -356,8 +357,8 @@ struct
 
   (* TODO:
    * Implement these to-string functions *)
-  let string_of_key = raise TODO
-  let string_of_value = raise TODO
+  let string_of_key = D.string_of_key
+  let string_of_value = D.string_of_value
   let string_of_dict (d: dict) : string = raise TODO
       
   (* Debugging function. This will print out the tree in text format.
@@ -639,11 +640,35 @@ struct
 
   (* How are you testing that you tree is balanced? 
    * ANSWER: 
-   *    _______________
+   * We need to check that all paths to Leaf nodes are of equal 
+   * length.  Our approach is to recursively check that path-to-leaf 
+   * length of the two or three branches of a node are the same.
    *)
-  let rec balanced (d: dict) : bool =
-    raise TODO
 
+  let rec balanced_height (d: dict) : bool*int =
+    match d with
+    | Leaf -> (true, 0)
+    | Two (l, v, r) -> 
+      let (bl,hl) = balanced_height l in
+      let (br,hr) = balanced_height r in
+      (bl && br && (hl = hr), max hl hr)
+    | Three (l, v1, m, v2, r) ->
+      let (bl,hl) = balanced_height l in
+      let (bm,hm) = balanced_height m in
+      let (br,hr) = balanced_height r in
+      (bl && bm && bl && (hl = hm) && (hl = hr), 
+       (max hl (max hm hr)))
+
+  let rec balanced (d: dict) : bool =
+    let (b, h) = balanced_height d in 
+    b
+
+  let rec height (d: dict) : int =
+    match d with
+    | Leaf -> 0
+    | Two (l, v, r) -> 1 + max (height l) (height r)
+    | Three (l, v1, m, v2, r) 
+      -> 1 + (max (max (height l) (height m))(height r))
 
   (********************************************************************)
   (*       TESTS                                                      *)
@@ -674,8 +699,7 @@ struct
     if size <= 0 then []
     else 
       (D.gen_key_random(), D.gen_value()) :: (generate_random_list (size - 1))
-
-(*
+	
   let test_balance () =
     let d1 = Leaf in
     assert(balanced d1) ;
@@ -715,7 +739,7 @@ struct
                    D.gen_pair(),Leaf,D.gen_pair(),Two(Leaf,D.gen_pair(),Leaf))
     in
     assert(not (balanced d7)) ;
-    () *)
+    ()
 
 (*
   let test_remove_nothing () =
@@ -773,7 +797,7 @@ struct
     () *)
 
   let run_tests () = 
-(*    test_balance() ; *)
+    test_balance() ; 
 (*    test_remove_nothing() ;
     test_remove_from_nothing() ;
     test_remove_in_order() ;
@@ -782,8 +806,6 @@ struct
     ()
 
 end
-*)
-
 
 
 (******************************************************************)
@@ -800,10 +822,10 @@ IntStringListDict.run_tests();;
  * 
  * Uncomment out the lines below when you are ready to test your
  * 2-3 tree implementation. *)
-(*
+
 module IntStringBTDict = BTDict(IntStringDictArg) ;;
 IntStringBTDict.run_tests();;
-*)
+
 
 
 
