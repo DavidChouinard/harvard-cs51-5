@@ -411,22 +411,32 @@ struct
 
 
   (* Upward phase for w where its parent is a Three node whose (key,value) is x.
-   * One of x's children is w, and of the two remaining children, 
-   * other_left is the subtree more to the left and other_right is the 
-   * subtree more to the right. 
+   * One of x's children is w, and of the two remaining children,
+   * other_left is the subtree more to the left and other_right is the
+   * subtree more to the right.
    *
    * E.g. From our handout, for the first case where w's parent is a Three-tree,
    * other_left would be c and other_right would be d. For the second case,
    * other_left would be a and other_right would be d. For the third case,
-   * other_left would be a and other_right would be b. 
+   * other_left would be a and other_right would be b.
    *
-   * This function should return a kicked-up configuration containing the 
+   * This function should return a kicked-up configuration containing the
    * new tree as a result of performing the upward phase on w. *)
   let insert_upward_three (w: pair) (w_left: dict) (w_right: dict)
       (x: pair) (y: pair) (other_left: dict) (other_right: dict) : kicked =
-    raise TODO
+    let (k_w, _) = w in
+    let (k_x, _) = x in
+    let (k_y, _) = y in
+    match D.compare k_w k_x with
+      | Less | Eq -> Up (Two (w_left, w, w_right), x, Two (other_left, y, other_right))
+      | Greater ->
+        match D.compare k_w k_y with
+          | Less | Eq -> Up (Two (other_left, x, w_left), w, Two (w_right, y, other_right))
+          | Greater -> Up (Two (other_left, x, other_right), y, Two (w_left, w,
+              w_right))
 
-  (* Downward phase for inserting (k,v) into our dictionary d. 
+
+  (* Downward phase for inserting (k,v) into our dictionary d.
    * The downward phase returns a "kicked" up configuration, where
    * 
    * type kicked =
@@ -438,20 +448,20 @@ struct
    * Up(left,(k,v),right) if the Two-node represented by this Up needs to
    * be further kicked up in the upward phase (this is represented by an up
    * arrow on the 2-3 Tree handout). We return Done(d) if we have finished
-   * our upward phase on the tree represented by d. 
+   * our upward phase on the tree represented by d.
    *
-   * The functions insert_downward, insert_downward_two, and 
-   * insert_downward_three are __mutually recursive__, hence the 
+   * The functions insert_downward, insert_downward_two, and
+   * insert_downward_three are __mutually recursive__, hence the
    * "let rec" and the "and" keywords. Here, we use three mutually recursive
    * functions to simplify our code into smaller pieces.
    *
-   * Two functions f and g are __mutually recursive__ if in f's definition, 
+   * Two functions f and g are __mutually recursive__ if in f's definition,
    * f calls g, and in g's definition, g calls f. This definition of
    * mutually recursive definitions can be extended to more than two functions,
-   * as follows: 
+   * as follows:
    * 
    * Functions f1, f2, f3, ..., fn are mutually recursive if for each of
-   * these functions f, all of the other f_i's can be called on some execution 
+   * these functions f, all of the other f_i's can be called on some execution
    * of f. *)
 
   (* insert_downward should handle the base case when inserting into a Leaf,
@@ -486,7 +496,7 @@ struct
       | Up(l,(k1,v1),r) -> Two(l,(k1,v1),r)
       | Done x -> x
 
-  (* Upward phase for removal where the parent of the hole is a Two node. 
+  (* Upward phase for removal where the parent of the hole is a Two node.
    * See cases (1-2) on the handout. n is the (key,value) pair contained in
    * the parent node; left and right are the subtrees of the parent node (our
    * hole is one of these subtrees); and dir indicates which subtree was
