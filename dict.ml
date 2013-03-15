@@ -350,8 +350,7 @@ struct
   (* How do we represent an empty dictionary with 2-3 trees? *)
   let empty : dict = Leaf
 
-  (* TODO:
-   * Implement fold. Read the specification in the DICT signature above. *)
+  (* Implement fold. Read the specification in the DICT signature above. *)
   let rec fold (f: key -> value -> 'a -> 'a) (u: 'a) (d: dict) : 'a =
     match d with
     | Leaf -> u
@@ -363,16 +362,15 @@ struct
       let (k2, v2) = kvp2 in
       (fold f (f k2 v2 (fold f (f k1 v1 (fold f u l)) m)) r)
 
-  (* TODO:
-   * Implement these to-string functions *)
+  (* Implement these to-string functions *)
   let string_of_key = D.string_of_key
   let string_of_value = D.string_of_value
-  let string_of_dict (d: dict) : string = 
+
+  let string_of_dict (d: dict) : string =
     let f = (fun k v y -> "key: " ^ D.string_of_key k ^ 
       "; value: (" ^ D.string_of_value v ^ ")\n" ^ y) in
     fold f "" d
 
-      
   (* Debugging function. This will print out the tree in text format.
    * Use this function to see the actual structure of your 2-3 tree. *
    *
@@ -403,9 +401,14 @@ struct
    * One of x's children is w, and the other child is x_other. This function
    * should return a kicked-up configuration containing the new tree as a
    * result of performing the upward phase on w. *)
-  let insert_upward_two (w: pair) (w_left: dict) (w_right: dict) 
-      (x: pair) (x_other: dict) : kicked = 
-    raise TODO
+  let insert_upward_two (w: pair) (w_left: dict) (w_right: dict)
+      (x: pair) (x_other: dict) : kicked =
+    let (k_w, _) = w in
+    let (k_x, _) = x in
+    match D.compare k_w k_x with
+      | Less | Eq -> Done (Three (w_left, w, w_right, x, x_other))
+      | Greater -> Done (Three (x_other, x, w_left, w, w_right))
+
 
   (* Upward phase for w where its parent is a Three node whose (key,value) is x.
    * One of x's children is w, and of the two remaining children, 
