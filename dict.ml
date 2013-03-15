@@ -648,7 +648,9 @@ struct
   (* TODO:
    * Write a function to test if a given key is in our dictionary *)
   let member (d: dict) (k: key) : bool =
-    raise TODO
+    match lookup d k with
+    | None -> false
+    | Some v -> true
 
   (* TODO:
    * Write a function that removes any (key,value) pair from our 
