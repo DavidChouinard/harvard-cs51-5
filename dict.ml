@@ -624,7 +624,7 @@ struct
       | Hole(_,d') -> d'
       | Absorbed(_,d') -> d'
 
-  (* TODO:
+  (*
    * Write a lookup function that returns the value of the given key
    * in our dictionary and returns it as an option, or return None
    * if the key is not in our dictionary. *)
@@ -645,12 +645,9 @@ struct
       | (Greater, Greater) -> lookup r k
       | _ -> raise (Failure "Invariant error in lookup"))
 
-  (* TODO:
-   * Write a function to test if a given key is in our dictionary *)
+  (* Write a function to test if a given key is in our dictionary *)
   let member (d: dict) (k: key) : bool =
-    match lookup d k with
-    | None -> false
-    | Some v -> true
+    (lookup d k) <> None
 
   (* TODO:
    * Write a function that removes any (key,value) pair from our 
@@ -725,48 +722,85 @@ struct
   (* generates a (key,value) list with keys in random order *)
   let rec generate_random_list (size: int) : (key * value) list =
     if size <= 0 then []
-    else 
+    else
       (D.gen_key_random(), D.gen_value()) :: (generate_random_list (size - 1))
-	
+
   let test_balance () =
-    let d1 = Leaf in
-    assert(balanced d1) ;
+    assert (balanced Leaf);
 
-    let d2 = Two(Leaf,D.gen_pair(),Leaf) in
-    assert(balanced d2) ;
+    let d2 = Two(Leaf,D.gen_pair (),Leaf) in
+    assert (balanced d2);
 
-    let d3 = Three(Leaf,D.gen_pair(),Leaf,D.gen_pair(),Leaf) in
-    assert(balanced d3) ;
+    let d3 = Three(Leaf,D.gen_pair (),Leaf,D.gen_pair (),Leaf) in
+    assert (balanced d3);
 
-    let d4 = Three(Two(Two(Two(Leaf,D.gen_pair(),Leaf),D.gen_pair(),
-                           Two(Leaf,D.gen_pair(),Leaf)),
-                       D.gen_pair(),Two(Two(Leaf,D.gen_pair(),Leaf),
-                                        D.gen_pair(),
-                                        Two(Leaf,D.gen_pair(),Leaf))),
-                   D.gen_pair(),
-                   Two(Two(Two(Leaf,D.gen_pair(),Leaf),D.gen_pair(),
-                           Two(Leaf,D.gen_pair(),Leaf)),D.gen_pair(),
-                       Two(Two(Leaf,D.gen_pair(),Leaf),D.gen_pair(),
-                           Two(Leaf,D.gen_pair(),Leaf))),D.gen_pair(),
-                   Two(Two(Two(Leaf,D.gen_pair(),Leaf),D.gen_pair(),
-                           Two(Leaf,D.gen_pair(),Leaf)),D.gen_pair(),
-                       Three(Two(Leaf,D.gen_pair(),Leaf),D.gen_pair(),
-                             Two(Leaf,D.gen_pair(),Leaf),D.gen_pair(),
-                             Three(Leaf,D.gen_pair(),Leaf,D.gen_pair(),Leaf))))
+    let d4 = Three(Two(Two(Two(Leaf,D.gen_pair (),Leaf),D.gen_pair (),
+                           Two(Leaf,D.gen_pair (),Leaf)),
+                       D.gen_pair (),Two(Two(Leaf,D.gen_pair (),Leaf),
+                                        D.gen_pair (),
+                                        Two(Leaf,D.gen_pair (),Leaf))),
+                   D.gen_pair (),
+                   Two(Two(Two(Leaf,D.gen_pair (),Leaf),D.gen_pair (),
+                           Two(Leaf,D.gen_pair (),Leaf)),D.gen_pair (),
+                       Two(Two(Leaf,D.gen_pair (),Leaf),D.gen_pair (),
+                           Two(Leaf,D.gen_pair (),Leaf))),D.gen_pair (),
+                   Two(Two(Two(Leaf,D.gen_pair (),Leaf),D.gen_pair (),
+                           Two(Leaf,D.gen_pair (),Leaf)),D.gen_pair (),
+                       Three(Two(Leaf,D.gen_pair (),Leaf),D.gen_pair (),
+                             Two(Leaf,D.gen_pair (),Leaf),D.gen_pair (),
+                             Three(Leaf,D.gen_pair (),Leaf,D.gen_pair (),Leaf))))
     in
-    assert(balanced d4) ;
+    assert (balanced d4);
 
-    let d5 = Two(Leaf,D.gen_pair(),Two(Leaf,D.gen_pair(),Leaf)) in
-    assert(not (balanced d5)) ;
+    let d5 = Two(Leaf,D.gen_pair (),Two(Leaf,D.gen_pair (),Leaf)) in
+    assert (not (balanced d5));
 
-    let d6 = Three(Leaf,D.gen_pair(),
-                   Two(Leaf,D.gen_pair(),Leaf),D.gen_pair(),Leaf) in
-    assert(not (balanced d6)) ;
+    let d6 = Three(Leaf,D.gen_pair (),
+                   Two(Leaf,D.gen_pair (),Leaf),D.gen_pair (),Leaf) in
+    assert (not (balanced d6));
 
-    let d7 = Three(Three(Leaf,D.gen_pair(),Leaf,D.gen_pair(),Leaf),
-                   D.gen_pair(),Leaf,D.gen_pair(),Two(Leaf,D.gen_pair(),Leaf))
+    let d7 = Three(Three(Leaf,D.gen_pair (),Leaf,D.gen_pair (),Leaf),
+                   D.gen_pair (),Leaf,D.gen_pair (),Two(Leaf,D.gen_pair (),Leaf))
     in
-    assert(not (balanced d7)) ;
+    assert (not (balanced d7));
+    ()
+
+  let test_lookup_and_member () =
+    let x0 = D.gen_key () in
+    let x1 = D.gen_key_gt x0 () in
+    let x2 = D.gen_key_gt x1 () in
+    let x3 = D.gen_key_gt x2 () in
+    let x4 = D.gen_key_gt x3 () in
+    let x5 = D.gen_key_gt x4 () in
+    let x6 = D.gen_key_gt x5 () in
+
+    let v0 = D.gen_value () in
+    let v1 = D.gen_value () in
+    let v2 = D.gen_value () in
+    let v3 = D.gen_value () in
+    let v4 = D.gen_value () in
+    let v5 = D.gen_value () in
+    let v6 = D.gen_value () in
+
+    assert (lookup Leaf x0 = None);
+
+    let d1 = Three(Leaf, (x0, v0), Leaf, (x1, v1), Leaf) in
+    assert (lookup d1 x0 = Some v0);
+    assert (lookup d1 x1 = Some v1);
+
+    let d2 = Two(Leaf, (x0, v0), Leaf) in
+    assert (lookup d2 x0 = Some v0);
+
+    let d3 = Three (Two (Leaf, (x0, v0), Leaf), (x1, v1),
+      Three (Leaf, (x2, v2), Leaf, (x3, v3), Leaf), (x4, v4),
+      Three (Leaf, (x5, v5), Leaf, (x6, v6), Leaf))
+    in
+    assert (lookup d3 x0 = Some v0);
+    assert (lookup d3 x3 = Some v3);
+    assert (lookup d3 x5 = Some v5);
+    assert (lookup d3 (D.gen_key_gt x6 ()) = None);
+    assert (member d3 x0);
+    assert (member d3 (D.gen_key_gt x6 ()) = false);
     ()
 
 (*
@@ -824,8 +858,9 @@ struct
     assert(balanced r5) ;
     () *)
 
-  let run_tests () = 
-    test_balance() ; 
+  let run_tests () =
+    test_balance ();
+    test_lookup_and_member ();
 (*    test_remove_nothing() ;
     test_remove_from_nothing() ;
     test_remove_in_order() ;
@@ -866,5 +901,5 @@ module Make (D:DICT_ARG) : (DICT with type key = D.key
   (* Change this line to the BTDict implementation when you are
    * done implementing your 2-3 trees. *)
   AssocListDict(D)
-  (* BTDict(D) *)
+   (*BTDict(D) *)
 
