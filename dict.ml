@@ -651,13 +651,13 @@ struct
     | Two (l, v, r) -> 
       let (bl,hl) = balanced_height l in
       let (br,hr) = balanced_height r in
-      (bl && br && (hl = hr), max hl hr)
+      (bl && br && (hl = hr), 1 + max hl hr)
     | Three (l, v1, m, v2, r) ->
       let (bl,hl) = balanced_height l in
       let (bm,hm) = balanced_height m in
       let (br,hr) = balanced_height r in
       (bl && bm && bl && (hl = hm) && (hl = hr), 
-       (max hl (max hm hr)))
+       1 + (max hl (max hm hr)))
 
   let rec balanced (d: dict) : bool =
     let (b, h) = balanced_height d in 
