@@ -629,7 +629,21 @@ struct
    * in our dictionary and returns it as an option, or return None
    * if the key is not in our dictionary. *)
   let rec lookup (d: dict) (k: key) : value option =
-    raise TODO
+    match d with
+    | Leaf -> None
+    | Two (l, (k1, v1), r) -> 
+      (match D.compare k k1 with
+      | Less -> lookup l k
+      | Eq -> Some v1
+      | _ -> lookup r k )
+    | Three (l, (k1, v1), m, (k2, v2), r) ->
+      (match (D.compare k k1), (D.compare k k2) with
+      | (Less, Less) -> lookup l k
+      | (Eq, Less) -> Some v1
+      | (Greater, Less) -> lookup m k
+      | (Greater, Eq) -> Some v2
+      | (Greater, Greater) -> lookup r k
+      | _ -> raise (Failure "Invariant error in lookup"))
 
   (* TODO:
    * Write a function to test if a given key is in our dictionary *)
