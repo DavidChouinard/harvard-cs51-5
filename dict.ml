@@ -831,6 +831,13 @@ struct
     assert (member d3 (D.gen_key_gt x6 ()) = false);
     ()
 
+  let test_insert () =
+    let pairs1 = generate_pair_list 26 in
+    let d1 = insert_list empty pairs1 in
+    (*Printf.printf (string_of_tree d1);*)
+    List.iter (fun (k,v) -> assert(lookup d1 k = Some v)) pairs1 ;
+    ()
+
 (*
   let test_remove_nothing () =
     let pairs1 = generate_pair_list 26 in
@@ -889,6 +896,7 @@ struct
   let run_tests () =
     test_balance ();
     test_lookup_and_member ();
+    test_insert ();
 (*    test_remove_nothing() ;
     test_remove_from_nothing() ;
     test_remove_in_order() ;
