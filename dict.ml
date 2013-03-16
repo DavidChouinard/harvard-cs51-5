@@ -469,6 +469,8 @@ struct
    * corresponding functions insert_downward_two or insert_downward_three
    * with the appropriate arguments. *)
   let rec insert_downward (d: dict) (k: key) (v: value) : kicked =
+    (* TODO: I thought this was right, but then I read this: https://piazza.com/class#spring2013/cs51/1271
+     * Now I'm not sure this is the correct implementation *)
     match d with
       | Leaf -> Up (Leaf, (k,v), Leaf)
       | Two(left,n,right) -> insert_downward_two (k, v) n left right
@@ -502,7 +504,7 @@ struct
    * the parent node; left and right are the subtrees of the parent node (our
    * hole is one of these subtrees); and dir indicates which subtree was
    * contained by the hole. *)
-  let remove_upward_two (n: pair) (rem: pair option) 
+  let remove_upward_two (n: pair) (rem: pair option)
       (left: dict) (right: dict) (dir: direction2) : hole =
     match dir,n,left,right with
       | Left2,x,l,Two(m,y,r) -> Hole(rem,Three(l,x,m,y,r))
