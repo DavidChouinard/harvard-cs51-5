@@ -503,17 +503,17 @@ struct
   and insert_downward_three ((k,v): pair) ((k1,v1): pair) ((k2,v2): pair) 
       (left: dict) (middle: dict) (right: dict) : kicked =
     match (D.compare k k1), (D.compare k k2) with
-    | (Less, Less)|(Eq, Less) -> 
+    | (Less, Less) | (Eq, Less) ->
        (match insert_downward left k v with
        | Up (l, (k', v'), r) -> Up ((Two (l, (k', v'), r)), (k1, v1),
           (Two (middle, (k2, v2), right)))
        | Done x -> (Done (Three (x, (k1, v1), middle, (k2, v2), right))))
-    | (Greater, Less)|(Greater, Eq) ->
+    | (Greater, Less) | (Greater, Eq) ->
       (match insert_downward middle k v with
        | Up (l, (k', v'), r) -> Up ((Two (left, (k1, v1), l)), (k', v'),
           (Two (r, (k2, v2), right)))
        | Done x -> (Done (Three (left, (k1, v1), x, (k2, v2), right))))
-    | (Greater, Greater) -> 
+    | (Greater, Greater) ->
       (match insert_downward right k v with
       | Up (l, (k', v'), r) -> Up ((Two (left, (k1, v1), middle)), (k2, v2),
           (Two (l, (k', v'), r)))
@@ -537,9 +537,11 @@ struct
       (left: dict) (right: dict) (dir: direction2) : hole =
     match dir,n,left,right with
       | Left2,x,l,Two(m,y,r) -> Hole(rem,Three(l,x,m,y,r))
-      | Right2,y,Two(l,x,m),r -> raise TODO
-      | Left2,x,a,Three(b,y,c,z,d) -> raise TODO
-      | Right2,z,Three(a,x,b,y,c),d -> raise TODO
+      | Right2,y,Two(l,x,m),r -> Hole(rem,Three(l,x,m,y,r))
+      | Left2,x,a,Three(b,y,c,z,d) ->
+          Absorbed(rem,Two(Two(a,x,b),y,Two(c,z,d)))
+      | Right2,z,Three(a,x,b,y,c),d ->
+          Absorbed(rem,Two(Two(a,x,b),y,Two(c,z,d)))
       | Left2,_,_,_ | Right2,_,_,_ -> Absorbed(rem,Two(Leaf,n,Leaf))
 
   (* Upward phase for removal where the parent of the hole is a Three node.
@@ -551,13 +553,17 @@ struct
       (left: dict) (middle: dict) (right: dict) (dir: direction3) : hole =
     match dir,n1,n2,left,middle,right with
       | Left3,x,z,a,Two(b,y,c),d -> Absorbed(rem,Two(Three(a,x,b,y,c),z,d))
-      | Mid3,y,z,Two(a,x,b),c,d -> raise TODO
-      | Mid3,x,y,a,b,Two(c,z,d) -> raise TODO
-      | Right3,x,z,a,Two(b,y,c),d -> raise TODO
-      | Left3,w,z,a,Three(b,x,c,y,d),e -> raise TODO
-      | Mid3,y,z,Three(a,w,b,x,c),d,e -> raise TODO
-      | Mid3,w,x,a,b,Three(c,y,d,z,e) -> raise TODO
-      | Right3,w,z,a,Three(b,x,c,y,d),e -> raise TODO
+      | Mid3,y,z,Two(a,x,b),c,d -> Absorbed(rem,Two(Three(a,x,b,y,c),z,d))
+      | Mid3,x,y,a,b,Two(c,z,d) -> Absorbed(rem,Two(a,x,Three(b,y,c,z,d)))
+      | Right3,x,z,a,Two(b,y,c),d -> Absorbed(rem,Two(a,x,Three(b,y,c,z,d)))
+      | Left3,w,z,a,Three(b,x,c,y,d),e ->
+          Absorbed(rem,Three(Two(a,w,b),x,Two(c,y,d),z,e))
+      | Mid3,y,z,Three(a,w,b,x,c),d,e ->
+          Absorbed(rem,Three(Two(a,w,b),x,Two(c,y,d),z,e))
+      | Mid3,w,x,a,b,Three(c,y,d,z,e) ->
+          Absorbed(rem,Three(a,w,Two(b,x,c),y,Two(d,z,e)))
+      | Right3,w,z,a,Three(b,x,c,y,d),e ->
+          Absorbed(rem,Three(a,w,Two(b,x,c),y,Two(d,z,e)))
       | Left3,_,_,_,_,_ | Mid3,_,_,_,_,_ | Right3,_,_,_,_,_ ->
         Absorbed(rem,Three(Leaf,n1,Leaf,n2,Leaf))
 
@@ -855,7 +861,6 @@ struct
     List.iter (fun (k,v) -> assert(lookup d1 k = Some v)) pairs1 ;
     ()
 
-(*
   let test_remove_nothing () =
     let pairs1 = generate_pair_list 26 in
     let d1 = insert_list empty pairs1 in
@@ -908,17 +913,17 @@ struct
     List.iter (fun (k,_) -> assert(not (member r5 k))) pairs5 ;
     assert(r5 = empty) ;
     assert(balanced r5) ;
-    () *)
+    ()
 
   let run_tests () =
     test_balance ();
     test_lookup_and_member ();
     test_insert ();
-(*    test_remove_nothing() ;
+    test_remove_nothing() ;
     test_remove_from_nothing() ;
     test_remove_in_order() ;
     test_remove_reverse_order() ;
-    test_remove_random_order() ; *)
+    test_remove_random_order() ; 
     ()
 
 end
