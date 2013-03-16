@@ -371,6 +371,10 @@ struct
       "; value: (" ^ D.string_of_value v ^ ")\n" ^ y) in
     fold f "" d
 
+  let print s = 
+    let _ = Printf.printf "%s\n" s in
+    flush_all();;
+
   (* Debugging function. This will print out the tree in text format.
    * Use this function to see the actual structure of your 2-3 tree. *
    *
@@ -475,10 +479,34 @@ struct
      * Now I'm not sure this is the correct implementation *)
     match d with
       | Leaf -> Up (Leaf, (k,v), Leaf)
-      | Two(left,n,right) -> insert_downward_two (k, v) n left right
-      | Three(left,n1,middle,n2,right) ->
-          insert_downward_three (k, v) n1 n2 left middle right
-
+      | Two(left,(kn,vn),right) -> (
+	print "Two case of insert_downward";
+	match insert_downward_two (k, v) (kn, vn) left right with
+	| Up(l,(k1,v1),r) ->
+	  (match D.compare k1 kn with 
+	  | Less | Eq -> Done (Three (l, (k1, v1), r, (kn, vn), right))
+	  | Greater -> Done (Three (left, (kn, vn), l, (k1, v1), r)))
+	| Done x -> Done x)
+      | Three(left,(kn1,vn1), middle,(kn2,vn2),right) -> (
+	print "Three case of insert_downward";
+        match insert_downward_three (k, v) (kn1, vn1) (kn2, vn2) left middle right with
+	| Up(l,(k1,v1),r) -> 
+	  (match D.compare k1 kn1, D.compare k1 kn2 with
+	  | (Less, Less) -> 
+	    Up ((Two (l, (k1, v1), r)),
+		(kn1, vn1),
+		(Two (middle, (kn2, vn2), right)))
+	  | (Greater, Less) -> 
+	    Up ((Two (left, (kn1, vn1), l)),
+		(k1, v1),
+		(Two (r, (kn2, vn2), right)))
+	  | (Greater, Greater) -> 
+	    Up ((Two (left, (kn1, vn1), middle)),
+		(kn2, vn2),
+		(Two (l, (k1, v1), r)))
+ 	  | _ -> raise (Failure "Invariant error in insert_downward"))
+	| Done x -> Done x)
+	
   (* Downward phase on a Two node. (k,v) is the (key,value) we are inserting,
    * (k1,v1) is the (key,value) of the current Two node, and left and right
    * are the two subtrees of the current Two node. *)
@@ -507,6 +535,7 @@ struct
    * "kicked" up configuration. We return the tree contained in the "kicked"
    * configuration. *)
   let insert (d: dict) (k: key) (v: value) : dict =
+    print (string_of_tree d);
     match insert_downward d k v with
       | Up(l,(k1,v1),r) -> Two(l,(k1,v1),r)
       | Done x -> x
@@ -832,9 +861,9 @@ struct
     ()
 
   let test_insert () =
-    let pairs1 = generate_pair_list 26 in
+    let pairs1 = generate_pair_list 4 in
     let d1 = insert_list empty pairs1 in
-    Printf.printf "%s\n" (string_of_tree d1);
+    print (string_of_tree d1);
     List.iter (fun (k,v) -> assert(lookup d1 k = Some v)) pairs1 ;
     ()
 
