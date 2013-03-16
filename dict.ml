@@ -505,7 +505,10 @@ struct
       (match D.compare k' k1 with
       | Less | Eq -> Done (Three (l, (k', v'), r, (k1, v1), right))
       | Greater ->   Done (Three (left, (k1, v1), l, (k', v'), r)))
-    | Done x -> Done x
+    | Done x -> 
+      (match D.compare k k1 with
+      |Less | Eq -> Done (Two (x, (k1, v1), right))
+      |Greater -> Done (Two (left, (k1, v1), x)))
       
   (* Downward phase on a Three node. (k,v) is the (key,value) we are inserting,
    * (k1,v1) and (k2,v2) are the two (key,value) pairs in our Three node, and
@@ -536,7 +539,15 @@ struct
 	    (k2, v2),
 	    (Two (l, (k', v'), r)))
       | _ -> raise (Failure "Invariant error in insert_downward"))
-    | Done x -> Done x
+    | Done x -> 
+      match (D.compare k k1), (D.compare k k2) with
+      | (Less, Less)|(Eq, Less) -> 
+	 (Done (Three (x, (k1, v1), middle, (k2, v2), right)))
+      | (Greater, Less) -> 
+	(Done (Three (left, (k1, v1), x, (k2, v2), right)))
+      | (Greater, Eq)|(Greater, Greater) -> 
+	 (Done (Three (left, (k1, v1), middle, (k2, v2), x)))
+      | _ -> raise (Failure "Invariant error in insert_downward_three")
 
   (* We insert (k,v) into our dict using insert_downward, which gives us
    * "kicked" up configuration. We return the tree contained in the "kicked"
@@ -868,7 +879,7 @@ struct
     ()
 
   let test_insert () =
-    let pairs1 = generate_pair_list 4 in
+    let pairs1 = generate_pair_list 6 in
     let d1 = insert_list empty pairs1 in
     print (string_of_tree d1);
     List.iter (fun (k,v) -> assert(lookup d1 k = Some v)) pairs1 ;
