@@ -265,6 +265,10 @@ struct
     assert (member d x0);
     assert (member d x2);
     assert (member d x3 = false);
+
+    let pairs = generate_pair_list 26 in
+    let d2 = insert_list empty pairs in
+    List.iter (fun (k,v) -> assert(lookup d2 k = Some v)) pairs;
     ()
 
   let test_choose () =
@@ -901,13 +905,22 @@ struct
     let v0 = D.gen_value () in
     let v1 = D.gen_value () in
 
+    assert (insert empty x1 v0 = Two(Leaf, (x1, v0), Leaf)
+      && balanced (insert empty x1 v0));
+
     (* Additional test for equality *)
     let d1 = Three(Leaf, (x0, v0), Leaf, (x1, v1), Leaf) in
-    assert (insert d1 x1 v0 = Three(Leaf, (x0, v0), Leaf, (x1, v0), Leaf));
+    assert (insert d1 x1 v0 = Three(Leaf, (x0, v0), Leaf, (x1, v0), Leaf)
+      && balanced (insert d1 x1 v0));
 
-    let pairs1 = generate_pair_list 26 in
-    let d2 = insert_list empty pairs1 in
-    List.iter (fun (k,v) -> assert(lookup d2 k = Some v)) pairs1 ;
+    let pairs = generate_pair_list 26 in
+    (* Add a bunch of elements to an empty dict and always check the result is
+     * balanced *)
+    let _ = List.fold_left (fun r (k,v) ->
+      let d = insert r k v in assert (balanced d); d) empty pairs
+    in ();
+    let d2 = insert_list empty pairs in
+    List.iter (fun (k,v) -> assert(lookup d2 k = Some v)) pairs;
     ()
 
   (* choose members until the set is empty then report *)
@@ -983,6 +996,7 @@ struct
     test_balance ();
     test_lookup_and_member ();
     test_insert ();
+    test_choose ();
     test_remove_nothing() ;
     test_remove_from_nothing() ;
     test_remove_in_order() ;
