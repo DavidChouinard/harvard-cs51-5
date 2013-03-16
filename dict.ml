@@ -979,10 +979,21 @@ struct
     assert(balanced r5) ;
     ()
 
+  let test_fold () =
+    let pairs = generate_random_list 100 in
+    let d = insert_list empty pairs in
+
+    assert(
+      fold (fun k v a -> (member d k) && a) true d);
+    assert(
+      (fold (fun k v a -> 1 + a) 0 d) = 100);
+    ()
+
   let run_tests () =
     test_balance ();
     test_lookup_and_member ();
     test_insert ();
+    test_fold ();
     test_remove_nothing() ;
     test_remove_from_nothing() ;
     test_remove_in_order() ;
