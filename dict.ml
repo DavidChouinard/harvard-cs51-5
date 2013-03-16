@@ -401,6 +401,8 @@ struct
    * One of x's children is w, and the other child is x_other. This function
    * should return a kicked-up configuration containing the new tree as a
    * result of performing the upward phase on w. *)
+  (* TODO: I thought we were supposed to assume no duplicate keys. *)
+  (* Should we raise an exception on the Eq case? *)
   let insert_upward_two (w: pair) (w_left: dict) (w_right: dict)
       (x: pair) (x_other: dict) : kicked =
     let (k_w, _) = w in
@@ -480,16 +482,26 @@ struct
   (* Downward phase on a Two node. (k,v) is the (key,value) we are inserting,
    * (k1,v1) is the (key,value) of the current Two node, and left and right
    * are the two subtrees of the current Two node. *)
+  (* Should we raise an exception on the Eq case? *)
   and insert_downward_two ((k,v): pair) ((k1,v1): pair)
       (left: dict) (right: dict) : kicked =
-    raise TODO
-
+    match D.compare k k1 with
+    | Less | Eq -> insert_downward left k v 
+    | Greater -> insert_downward right k v
+      
   (* Downward phase on a Three node. (k,v) is the (key,value) we are inserting,
    * (k1,v1) and (k2,v2) are the two (key,value) pairs in our Three node, and
    * left, middle, and right are the three subtrees of our current Three node *)
   and insert_downward_three ((k,v): pair) ((k1,v1): pair) ((k2,v2): pair) 
       (left: dict) (middle: dict) (right: dict) : kicked =
-    raise TODO
+    match (D.compare k k1), (D.compare k k2) with
+    | (Less, Less) -> insert_downward left k v 
+    | (Eq, Less) -> insert_downward left k v 
+    | (Greater, Less) -> insert_downward middle k v
+    | (Greater, Eq) -> insert_downward middle k v
+    | (Greater, Greater) -> insert_downward right k v
+    | _ -> raise (Failure "Invariant error in insert_downward_three")
+
 
   (* We insert (k,v) into our dict using insert_downward, which gives us
    * "kicked" up configuration. We return the tree contained in the "kicked"
