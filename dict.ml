@@ -706,7 +706,14 @@ struct
    * as an option this (key,value) pair along with the new dictionary. 
    * If our dictionary is empty, this should return None. *)
   let choose (d: dict) : (key * value * dict) option =
-    raise TODO
+    match d with 
+    | Leaf -> None
+    | Two (left, (k1, v1), right) ->
+      let d' = remove d k1 in
+      Some (k1, v1, d')
+    | Three (left, (k1, v1), middle, (k2, v2), right) ->
+      let d' = remove d k1 in
+      Some (k1, v1, d')
 
   (* TODO:
    * Write a function that when given a 2-3 tree (represented by our
@@ -857,7 +864,6 @@ struct
   let test_insert () =
     let pairs1 = generate_pair_list 26 in
     let d1 = insert_list empty pairs1 in
-    print (string_of_tree d1);
     List.iter (fun (k,v) -> assert(lookup d1 k = Some v)) pairs1 ;
     ()
 
