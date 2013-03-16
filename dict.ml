@@ -982,7 +982,8 @@ struct
   let test_fold () =
     let pairs = generate_random_list 100 in
     let d = insert_list empty pairs in
-
+    
+    assert(balanced d);
     assert(
       fold (fun k v a -> (member d k) && a) true d);
     assert(
