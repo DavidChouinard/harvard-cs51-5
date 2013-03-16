@@ -3,8 +3,6 @@
  * be using a dictionary to build an index for the web, associating
  * a set of URLs with each word that we find as we crawl the web.
  *)
-exception TODO
-
 module type DICT = 
 sig
   type key
@@ -279,8 +277,6 @@ module BTDict(D:DICT_ARG) : (DICT with type key = D.key
 with type value = D.value) =
 struct
   open Order
-
-  exception TODO
 
   type key = D.key
   type value = D.value
@@ -700,7 +696,7 @@ struct
   let member (d: dict) (k: key) : bool =
     (lookup d k) <> None
 
-  (* TODO:
+  (*
    * Write a function that removes any (key,value) pair from our 
    * dictionary (your choice on which one to remove), and returns
    * as an option this (key,value) pair along with the new dictionary. 
@@ -715,7 +711,7 @@ struct
       let d' = remove d k1 in
       Some (k1, v1, d')
 
-  (* TODO:
+  (*
    * Write a function that when given a 2-3 tree (represented by our
    * dictionary d), returns true if and only if the tree is "balanced", 
    * where balanced means that the given tree satisfies the 2-3 tree
@@ -964,6 +960,6 @@ module Make (D:DICT_ARG) : (DICT with type key = D.key
   with type value = D.value) = 
   (* Change this line to the BTDict implementation when you are
    * done implementing your 2-3 trees. *)
-  AssocListDict(D)
-   (*BTDict(D) *)
+  (*AssocListDict(D)*)
+  BTDict(D)
 
