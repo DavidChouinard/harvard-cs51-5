@@ -280,8 +280,14 @@ struct
     ()
 
   let test_fold () =
-    (*TODO*)
-    (*assert (fold (fun \x y -> x)jk*)
+    let x0 = D.gen_key () in
+    let x1 = D.gen_key_gt x0 () in
+    let v0 = D.gen_value () in
+    let v1 = D.gen_value () in
+
+    assert (fold (fun k v tl -> k) x0 empty = x0);
+    assert (fold (fun k v tl -> k) x0 [(x1,v1)] = x1);
+    assert (fold (fun k v tl -> k) x0 [(x0,v0);(x1,v1)] = x1);
     ()
 
   let run_tests () =
@@ -429,8 +435,6 @@ struct
    * One of x's children is w, and the other child is x_other. This function
    * should return a kicked-up configuration containing the new tree as a
    * result of performing the upward phase on w. *)
-  (* TODO: I thought we were supposed to assume no duplicate keys. *)
-  (* Should we raise an exception on the Eq case? *)
   let insert_upward_two (w: pair) (w_left: dict) (w_right: dict)
       (x: pair) (x_other: dict) : kicked =
     let (k_w, _) = w in
@@ -1018,6 +1022,6 @@ module Make (D:DICT_ARG) : (DICT with type key = D.key
   with type value = D.value) = 
   (* Change this line to the BTDict implementation when you are
    * done implementing your 2-3 trees. *)
-  AssocListDict(D)
-  (*BTDict(D)*)
+  (*AssocListDict(D)*)
+  BTDict(D)
 
