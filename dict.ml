@@ -475,15 +475,12 @@ struct
    * corresponding functions insert_downward_two or insert_downward_three
    * with the appropriate arguments. *)
   let rec insert_downward (d: dict) (k: key) (v: value) : kicked =
-    (* TODO: I thought this was right, but then I read this: https://piazza.com/class#spring2013/cs51/1271
-     * Now I'm not sure this is the correct implementation *)
     match d with
       | Leaf -> Up (Leaf, (k,v), Leaf)
-      | Two(left, n, right) -> 
-	insert_downward_two (k, v) n left right
+      | Two(left, n, right) ->  insert_downward_two (k, v) n left right
       | Three(left, n1, middle, n2, right) -> 
         insert_downward_three (k, v) n1 n2 left middle right
-	
+
   (* Downward phase on a Two node. (k,v) is the (key,value) we are inserting,
    * (k1,v1) is the (key,value) of the current Two node, and left and right
    * are the two subtrees of the current Two node. *)
@@ -491,19 +488,15 @@ struct
   and insert_downward_two ((k,v): pair) ((k1,v1): pair)
       (left: dict) (right: dict) : kicked =
     match D.compare k k1 with
-    | Less | Eq -> 
+    | Less | Eq ->
       (match insert_downward left k v with
-      | Up (l, (k', v'), r) -> 
-	Done (Three (l, (k', v'), r, (k1, v1), right))
-      | Done x -> 
-	Done (Two (x, (k1, v1), right)))
-    | Greater -> 
+      | Up (l, (k', v'), r) -> Done (Three (l, (k', v'), r, (k1, v1), right))
+      | Done x -> Done (Two (x, (k1, v1), right)))
+    | Greater ->
       (match insert_downward right k v with
-      | Up (l, (k', v'), r) ->
-	Done (Three (left, (k1, v1), l, (k', v'), r))
-      | Done x -> 
-	Done (Two (left, (k1, v1), x)))
-      
+      | Up (l, (k', v'), r) -> Done (Three (left, (k1, v1), l, (k', v'), r))
+      | Done x -> Done (Two (left, (k1, v1), x)))
+
   (* Downward phase on a Three node. (k,v) is the (key,value) we are inserting,
    * (k1,v1) and (k2,v2) are the two (key,value) pairs in our Three node, and
    * left, middle, and right are the three subtrees of our current Three node *)
@@ -512,28 +505,19 @@ struct
     match (D.compare k k1), (D.compare k k2) with
     | (Less, Less)|(Eq, Less) -> 
        (match insert_downward left k v with
-       | Up (l, (k', v'), r) ->
-	 Up ((Two (l, (k', v'), r)),
-	     (k1, v1),
-	     (Two (middle, (k2, v2), right)))
-       | Done x -> 
-	 (Done (Three (x, (k1, v1), middle, (k2, v2), right))))
-    | (Greater, Less)|(Greater, Eq) -> 
+       | Up (l, (k', v'), r) -> Up ((Two (l, (k', v'), r)), (k1, v1),
+          (Two (middle, (k2, v2), right)))
+       | Done x -> (Done (Three (x, (k1, v1), middle, (k2, v2), right))))
+    | (Greater, Less)|(Greater, Eq) ->
       (match insert_downward middle k v with
-       | Up (l, (k', v'), r) ->
-	 Up ((Two (left, (k1, v1), l)),
-	     (k', v'),
-	     (Two (r, (k2, v2), right)))
-       | Done x -> 
-	 (Done (Three (left, (k1, v1), x, (k2, v2), right))))
+       | Up (l, (k', v'), r) -> Up ((Two (left, (k1, v1), l)), (k', v'),
+          (Two (r, (k2, v2), right)))
+       | Done x -> (Done (Three (left, (k1, v1), x, (k2, v2), right))))
     | (Greater, Greater) -> 
       (match insert_downward right k v with
-      | Up (l, (k', v'), r) ->
-	Up ((Two (left, (k1, v1), middle)),
-	    (k2, v2),
-	    (Two (l, (k', v'), r)))
-      | Done x -> 
-	(Done (Three (left, (k1, v1), middle, (k2, v2), x))))
+      | Up (l, (k', v'), r) -> Up ((Two (left, (k1, v1), middle)), (k2, v2),
+          (Two (l, (k', v'), r)))
+      | Done x -> Done (Three (left, (k1, v1), middle, (k2, v2), x)))
     | _ -> raise (Failure "Invariant error in insert_downward_three")
 
   (* We insert (k,v) into our dict using insert_downward, which gives us
