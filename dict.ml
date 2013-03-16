@@ -520,7 +520,7 @@ struct
       match (D.compare k k1), (D.compare k k2) with
       | (Less, Less)|(Eq, Less) -> insert_downward left k v 
       | (Greater, Less) -> insert_downward middle k v
-      | (Greater, Eq)|(Greater, Greater) -> insert_downward middle k v
+      | (Greater, Eq)|(Greater, Greater) -> insert_downward right k v
       | _ -> raise (Failure "Invariant error in insert_downward_three")
     in
     match result with
@@ -879,7 +879,7 @@ struct
     ()
 
   let test_insert () =
-    let pairs1 = generate_pair_list 6 in
+    let pairs1 = generate_pair_list 26 in
     let d1 = insert_list empty pairs1 in
     print (string_of_tree d1);
     List.iter (fun (k,v) -> assert(lookup d1 k = Some v)) pairs1 ;
