@@ -481,12 +481,12 @@ struct
       | Leaf -> (
 	print "Leaf case of insert_downward";
 	Up (Leaf, (k,v), Leaf))
-      | Two(left,(kn,vn),right) -> (
+      | Two(left, n, right) -> (
 	print "Two case of insert_downward";
-	insert_downward_two (k, v) (kn, vn) left right)
-      | Three(left,(kn1,vn1), middle,(kn2,vn2),right) -> (
+	insert_downward_two (k, v) n left right)
+      | Three(left, n1, middle, n2, right) -> (
 	print "Three case of insert_downward";
-        insert_downward_three (k, v) (kn1, vn1) (kn2, vn2) left middle right)
+        insert_downward_three (k, v) n1 n2 left middle right)
 	
   (* Downward phase on a Two node. (k,v) is the (key,value) we are inserting,
    * (k1,v1) is the (key,value) of the current Two node, and left and right
