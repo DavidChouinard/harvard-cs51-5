@@ -147,42 +147,40 @@ struct
 
   let empty = [] ;;
 
-  let fold f d = List.fold_left (fun a (k,v) -> f k v a) d 
+  let fold f d = List.fold_left (fun a (k,v) -> f k v a) d
 
-  let rec lookup d k = 
-    match d with 
+  let rec lookup d k =
+    match d with
       | [] -> None
-      | (k1,v1)::d1 -> 
+      | (k1,v1)::d1 ->
         (match D.compare k k1 with
           | Eq -> Some v1
-          | Greater -> lookup d1 k 
+          | Greater -> lookup d1 k
           | _ -> None)
 
-  let member d k = 
-    match lookup d k with 
-      | None -> false 
-      | Some _ -> true
+  let member d k =
+    (lookup d k) <> None
 
-  let rec insert d k v = 
-    match d with 
+  let rec insert d k v =
+    match d with
       | [] -> [(k,v)]
-      | (k1,v1)::d1 -> 
-        (match D.compare k k1 with 
+      | (k1,v1)::d1 ->
+        (match D.compare k k1 with
           | Less -> (k,v)::d
           | Eq -> (k,v)::d1
           | Greater -> (k1,v1)::(insert d1 k v))
 
-  let rec remove d k = 
-    match d with 
+  let rec remove d k =
+    match d with
       | [] -> []
       | (k1,v1)::d1 ->
-	(match D.compare k k1 with 
+    (match D.compare k k1 with
           | Eq -> d1
           | Greater -> (k1,v1)::(remove d1 k)
           | _ -> d)
-	  
-  let choose d = 
-    match d with 
+
+  let choose d =
+    match d with
       | [] -> None
       | (k,v)::rest -> Some(k,v,rest)
 
@@ -243,28 +241,58 @@ struct
       ) pairs1 ;
     ()
 
-  let test_lookup () =
+  let test_lookup_and_member () =
+    let x0 = D.gen_key () in
+    let x1 = D.gen_key_gt x0 () in
+    let x2 = D.gen_key_gt x1 () in
+    let x3 = D.gen_key_gt x2 () in
+
+    let v0 = D.gen_value () in
+    let v1 = D.gen_value () in
+    let v2 = D.gen_value () in
+
+    assert (lookup empty x0 = None);
+    assert (member empty x0 = false);
+
+    assert (lookup [(x0,v0)] x0 = Some v0);
+    assert (member [(x0,v0)] x0);
+
+    let d = [(x0,v0);(x1,v1);(x2,v2)] in
+    assert (lookup d x0 = Some v0);
+    assert (lookup d x1 = Some v1);
+    assert (lookup d x2 = Some v2);
+    assert (lookup d x3 = None);
+    assert (member d x0);
+    assert (member d x2);
+    assert (member d x3 = false);
     ()
 
   let test_choose () =
-    ()
+    let x0 = D.gen_key () in
+    let x1 = D.gen_key_gt x0 () in
+    let v0 = D.gen_value () in
+    let v1 = D.gen_value () in
 
-  let test_member () =
+    assert (choose empty = None);
+    assert (choose [(x0,v0)] = Some (x0, v0, empty));
+    assert (choose [(x0,v0);(x1,v1)] = Some (x0, v0, [(x1,v1)]) ||
+      choose [(x0,v0);(x1,v1)] = Some (x1, v1, [(x0,v0)]));
     ()
 
   let test_fold () =
+    (*TODO*)
+    (*assert (fold (fun \x y -> x)jk*)
     ()
 
-  let run_tests () = 
-    test_insert() ;
-    test_remove() ;
-    test_lookup() ;
-    test_choose() ;
-    test_member() ;
-    test_fold() ;
+  let run_tests () =
+    test_insert ();
+    test_remove ();
+    test_lookup_and_member ();
+    test_choose ();
+    test_fold ();
     ()
 
-end    
+end
 
 
 
@@ -858,9 +886,19 @@ struct
     ()
 
   let test_insert () =
+    let x0 = D.gen_key () in
+    let x1 = D.gen_key_gt x0 () in
+
+    let v0 = D.gen_value () in
+    let v1 = D.gen_value () in
+
+    (* Additional test for equality *)
+    let d1 = Three(Leaf, (x0, v0), Leaf, (x1, v1), Leaf) in
+    assert (insert d1 x1 v0 = Three(Leaf, (x0, v0), Leaf, (x1, v0), Leaf));
+
     let pairs1 = generate_pair_list 26 in
-    let d1 = insert_list empty pairs1 in
-    List.iter (fun (k,v) -> assert(lookup d1 k = Some v)) pairs1 ;
+    let d2 = insert_list empty pairs1 in
+    List.iter (fun (k,v) -> assert(lookup d2 k = Some v)) pairs1 ;
     ()
 
   let test_remove_nothing () =
@@ -960,6 +998,6 @@ module Make (D:DICT_ARG) : (DICT with type key = D.key
   with type value = D.value) = 
   (* Change this line to the BTDict implementation when you are
    * done implementing your 2-3 trees. *)
-  (*AssocListDict(D)*)
-  BTDict(D)
+  AssocListDict(D)
+  (*BTDict(D)*)
 
