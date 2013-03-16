@@ -834,7 +834,7 @@ struct
   let test_insert () =
     let pairs1 = generate_pair_list 26 in
     let d1 = insert_list empty pairs1 in
-    (*Printf.printf (string_of_tree d1);*)
+    Printf.printf "%s\n" (string_of_tree d1);
     List.iter (fun (k,v) -> assert(lookup d1 k = Some v)) pairs1 ;
     ()
 
