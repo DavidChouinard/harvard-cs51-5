@@ -540,7 +540,6 @@ struct
    * "kicked" up configuration. We return the tree contained in the "kicked"
    * configuration. *)
   let insert (d: dict) (k: key) (v: value) : dict =
-    print ("insert: " ^ (string_of_tree d));
     match insert_downward d k v with
       | Up(l,(k1,v1),r) -> Two(l,(k1,v1),r)
       | Done x -> x
