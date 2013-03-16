@@ -484,6 +484,7 @@ struct
   and insert_downward_two ((k,v): pair) ((k1,v1): pair)
       (left: dict) (right: dict) : kicked =
     match D.compare k k1 with
+    | Eq -> Done (Two (left, (k, v), right))
     | Less ->
       (match insert_downward left k v with
       | Up (l, (k', v'), r) -> Done (Three (l, (k', v'), r, (k1, v1), right))
@@ -492,7 +493,6 @@ struct
       (match insert_downward right k v with
       | Up (l, (k', v'), r) -> Done (Three (left, (k1, v1), l, (k', v'), r))
       | Done x -> Done (Two (left, (k1, v1), x)))
-    | Eq -> raise (Failure "Should not have duplicate keys")
 
   (* Downward phase on a Three node. (k,v) is the (key,value) we are inserting,
    * (k1,v1) and (k2,v2) are the two (key,value) pairs in our Three node, and
@@ -500,6 +500,8 @@ struct
   and insert_downward_three ((k,v): pair) ((k1,v1): pair) ((k2,v2): pair) 
       (left: dict) (middle: dict) (right: dict) : kicked =
     match (D.compare k k1), (D.compare k k2) with
+    | (Eq, Less) ->
+      Done (Three (left, (k, v), middle, (k2, v2), right))
     | (Less, Less) ->
        (match insert_downward left k v with
        | Up (l, (k', v'), r) -> Up ((Two (l, (k', v'), r)), (k1, v1),
@@ -510,6 +512,8 @@ struct
        | Up (l, (k', v'), r) -> Up ((Two (left, (k1, v1), l)), (k', v'),
           (Two (r, (k2, v2), right)))
        | Done x -> (Done (Three (left, (k1, v1), x, (k2, v2), right))))
+    | (Greater, Eq) ->
+      Done (Three (left, (k1, v1), middle, (k, v), right))
     | (Greater, Greater) ->
       (match insert_downward right k v with
       | Up (l, (k', v'), r) -> Up ((Two (left, (k1, v1), middle)), (k2, v2),
