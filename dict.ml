@@ -515,11 +515,9 @@ struct
     print "insert_downward_three";
     let result =
       match (D.compare k k1), (D.compare k k2) with
-      | (Less, Less) -> insert_downward left k v 
-      | (Eq, Less) -> insert_downward left k v 
+      | (Less, Less)|(Eq, Less) -> insert_downward left k v 
       | (Greater, Less) -> insert_downward middle k v
-      | (Greater, Eq) -> insert_downward middle k v
-      | (Greater, Greater) -> insert_downward right k v
+      | (Greater, Eq)|(Greater, Greater) -> insert_downward middle k v
       | _ -> raise (Failure "Invariant error in insert_downward_three")
     in
     match result with
