@@ -513,13 +513,32 @@ struct
   and insert_downward_three ((k,v): pair) ((k1,v1): pair) ((k2,v2): pair) 
       (left: dict) (middle: dict) (right: dict) : kicked =
     print "insert_downward_three";
-    match (D.compare k k1), (D.compare k k2) with
-    | (Less, Less) -> insert_downward left k v 
-    | (Eq, Less) -> insert_downward left k v 
-    | (Greater, Less) -> insert_downward middle k v
-    | (Greater, Eq) -> insert_downward middle k v
-    | (Greater, Greater) -> insert_downward right k v
-    | _ -> raise (Failure "Invariant error in insert_downward_three")
+    let result =
+      match (D.compare k k1), (D.compare k k2) with
+      | (Less, Less) -> insert_downward left k v 
+      | (Eq, Less) -> insert_downward left k v 
+      | (Greater, Less) -> insert_downward middle k v
+      | (Greater, Eq) -> insert_downward middle k v
+      | (Greater, Greater) -> insert_downward right k v
+      | _ -> raise (Failure "Invariant error in insert_downward_three")
+    in
+    match result with
+    | Up (l, (k', v'), r) ->
+      (match D.compare k' k1, D.compare k' k2 with
+      | (Less, Less) -> 
+	Up ((Two (l, (k', v'), r)),
+	    (k1, v1),
+	    (Two (middle, (k2, v2), right)))
+      | (Greater, Less) -> 
+	Up ((Two (left, (k1, v1), l)),
+	    (k', v'),
+	    (Two (r, (k2, v2), right)))
+      | (Greater, Greater) -> 
+	Up ((Two (left, (k1, v1), middle)),
+	    (k2, v2),
+	    (Two (l, (k', v'), r)))
+      | _ -> raise (Failure "Invariant error in insert_downward"))
+    | Done x -> Done x
 
   (* We insert (k,v) into our dict using insert_downward, which gives us
    * "kicked" up configuration. We return the tree contained in the "kicked"
