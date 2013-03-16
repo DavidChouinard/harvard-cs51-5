@@ -861,6 +861,21 @@ struct
     List.iter (fun (k,v) -> assert(lookup d1 k = Some v)) pairs1 ;
     ()
 
+  (* choose members until the set is empty then report *)
+  (* report how many were chosen.                      *)
+  let rec choose_till_empty (size: int) (d: dict): int =
+    match choose d with
+    | None -> size
+    | Some (k, v, d') -> choose_till_empty (size + 1) d'
+
+  let test_choose () =
+    let pairs1 = generate_pair_list 26 in
+    let d1 = insert_list empty pairs1 in
+    List.iter (fun k -> assert((choose d1) != None)) pairs1 ;
+    assert((choose_till_empty 0 d1) = 26);
+    assert((choose empty) = None);
+    ()
+
 (*
   let test_remove_nothing () =
     let pairs1 = generate_pair_list 26 in
